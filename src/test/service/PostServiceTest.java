@@ -15,8 +15,6 @@ import samatov.jdbcProject.model.Writer;
 import samatov.jdbcProject.repository.PostRepository;
 import samatov.jdbcProject.service.PostService;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

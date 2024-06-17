@@ -3,7 +3,6 @@ package samatov.jdbcProject.view.initializer;
 import samatov.jdbcProject.controller.LabelController;
 import samatov.jdbcProject.controller.PostController;
 import samatov.jdbcProject.controller.WriterController;
-import samatov.jdbcProject.repository.PostRepository;
 import samatov.jdbcProject.repository.impl.LabelRepositoryImpl;
 import samatov.jdbcProject.repository.impl.PostRepositoryImpl;
 import samatov.jdbcProject.repository.impl.WriterRepositoryImpl;

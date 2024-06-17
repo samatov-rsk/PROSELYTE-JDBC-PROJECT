@@ -1,6 +1,5 @@
 package samatov.jdbcProject.controller;
 
-import lombok.RequiredArgsConstructor;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.service.PostService;

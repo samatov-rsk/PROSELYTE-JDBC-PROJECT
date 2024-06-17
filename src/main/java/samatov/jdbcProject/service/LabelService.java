@@ -3,7 +3,6 @@ package samatov.jdbcProject.service;
 import lombok.RequiredArgsConstructor;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.repository.LabelRepository;
-import samatov.jdbcProject.repository.impl.LabelRepositoryImpl;
 
 import java.util.List;
 
