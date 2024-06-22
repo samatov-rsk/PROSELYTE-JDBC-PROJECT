@@ -16,7 +16,7 @@ public class MainView {
     public MainView(WriterController writerController, LabelController labelController, PostController postController) {
         this.writerView = new WriterView(writerController,labelController);
         this.labelView = new LabelView(labelController);
-        this.postView = new PostView(postController, labelController);
+        this.postView = new PostView(postController);
         this.scanner = new Scanner(System.in);
     }
 

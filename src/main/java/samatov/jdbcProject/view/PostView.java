@@ -1,30 +1,28 @@
 package samatov.jdbcProject.view;
 
+import lombok.RequiredArgsConstructor;
 import samatov.jdbcProject.controller.PostController;
-import samatov.jdbcProject.controller.LabelController;
+import samatov.jdbcProject.dto.LabelDTO;
+import samatov.jdbcProject.dto.PostDTO;
 import samatov.jdbcProject.enums.PostStatus;
-import samatov.jdbcProject.model.Label;
-import samatov.jdbcProject.model.Post;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
 public class PostView {
+
     private final PostController postController;
-    private final LabelController labelController;
     private final Scanner scanner;
 
-    public PostView(PostController postController, LabelController labelController) {
+    public PostView(PostController postController) {
         this.postController = postController;
-        this.labelController = labelController;
         this.scanner = new Scanner(System.in);
     }
 
     public void displayMenu() {
         while (true) {
-            System.out.println("\nВыберите действие:");
             System.out.println("1. Показать все посты");
             System.out.println("2. Найти пост по ID");
             System.out.println("3. Добавить новый пост");
@@ -33,18 +31,19 @@ public class PostView {
             System.out.println("6. Добавить метку к посту");
             System.out.println("7. Удалить метку с поста");
             System.out.println("8. Выход");
+            System.out.print("Выберите опцию: ");
+            int option = scanner.nextInt();
+            scanner.nextLine(); // consume newline
 
-            System.out.print("Введите номер действия: ");
-            int choice = scanner.nextInt();
-            switch (choice) {
+            switch (option) {
                 case 1:
-                    displayAllPosts();
+                    showAllPosts();
                     break;
                 case 2:
-                    displayPostById();
+                    findPostById();
                     break;
                 case 3:
-                    createPost();
+                    addNewPost();
                     break;
                 case 4:
                     updatePost();
@@ -59,153 +58,103 @@ public class PostView {
                     removeLabelFromPost();
                     break;
                 case 8:
-                    System.out.println("Выход из программы...");
                     return;
                 default:
-                    System.out.println("Неверный выбор, попробуйте снова.");
+                    System.out.println("Неверный выбор. Пожалуйста, попробуйте еще раз.");
             }
         }
     }
 
-    private void displayAllPosts() {
-        List<Post> posts = postController.getAllPost();
-        if (posts.isEmpty()) {
-            System.out.println("Посты не найдены.");
-        } else {
-            posts.forEach(System.out::println);
+    private void showAllPosts() {
+        List<PostDTO> posts = postController.getAllPosts();
+        for (PostDTO post : posts) {
+            System.out.println(post);
         }
     }
 
-    private void displayPostById() {
+    private void findPostById() {
         System.out.print("Введите ID поста: ");
         int id = scanner.nextInt();
-        Post post = postController.getPostById(id);
-        if (post != null) {
-            System.out.println(post);
-        } else {
-            System.out.println("Пост с таким ID не найден.");
-        }
+        scanner.nextLine(); // consume newline
+        PostDTO post = postController.getPostById(id);
+        System.out.println(post);
     }
 
-    private void createPost() {
+    private void addNewPost() {
         System.out.print("Введите текст поста: ");
-        scanner.nextLine();
         String content = scanner.nextLine();
-
-        System.out.print("Введите ID писателя: ");
-        int writerId = scanner.nextInt();
-
-        List<Label> labels = new ArrayList<>();
-        System.out.print("Введите количество меток: ");
-        int labelCount = scanner.nextInt();
-        for (int i = 0; i < labelCount; i++) {
-            System.out.print("Введите ID метки: ");
-            int labelId = scanner.nextInt();
-            Label label = labelController.getLabelById(labelId);
-            if (label != null) {
-                labels.add(label);
-            } else {
-                System.out.println("Метка с таким ID не найдена. Пропускаю.");
-            }
-        }
-
-        Post post = Post.builder()
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        PostDTO postDTO = PostDTO.builder()
                 .content(content)
-                .created(new Timestamp(System.currentTimeMillis()))
-                .updated(new Timestamp(System.currentTimeMillis()))
-                .status(PostStatus.ACTIVE)
-                .labels(labels)
+                .created(timestamp)
+                .updated(timestamp)
+                .status(PostStatus.ACTIVE) // начальный статус
+                .labels(Collections.emptyList()) // Инициализация пустым списком
                 .build();
 
-        postController.savePost(post, writerId);
-        System.out.println("Пост добавлен.");
+        postDTO = postController.createPost(postDTO);
+
+        System.out.print("Введите количество меток для добавления: ");
+        int labelCount = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        for (int i = 0; i < labelCount; i++) {
+            System.out.print("Введите название метки: ");
+            String labelName = scanner.nextLine();
+            LabelDTO labelDTO = LabelDTO.builder()
+                    .name(labelName)
+                    .build();
+            postController.addLabelToPost(postDTO.getId(), labelDTO.getId());
+        }
+        System.out.println("Пост добавлен: " + postDTO);
     }
 
     private void updatePost() {
-        System.out.print("Введите ID поста для обновления: ");
+        System.out.print("Введите ID поста: ");
         int id = scanner.nextInt();
-        Post existingPost = postController.getPostById(id);
-        if (existingPost == null) {
-            System.out.println("Пост с таким ID не найден.");
+        scanner.nextLine(); // consume newline
+        PostDTO postDTO = postController.getPostById(id);
+        if (postDTO == null) {
+            System.out.println("Пост не найден.");
             return;
         }
 
         System.out.print("Введите новый текст поста: ");
-        scanner.nextLine();
         String content = scanner.nextLine();
+        postDTO.setContent(content);
+        postDTO.setUpdated(new Timestamp(System.currentTimeMillis()));
 
-        List<Label> labels = new ArrayList<>();
-        System.out.print("Введите количество меток: ");
-        int labelCount = scanner.nextInt();
-        for (int i = 0; i < labelCount; i++) {
-            System.out.print("Введите ID метки: ");
-            int labelId = scanner.nextInt();
-            Label label = labelController.getLabelById(labelId);
-            if (label != null) {
-                labels.add(label);
-            } else {
-                System.out.println("Метка с таким ID не найдена. Пропускаю.");
-            }
-        }
-
-        existingPost.setContent(content);
-        existingPost.setUpdated(new Timestamp(System.currentTimeMillis()));
-        existingPost.setStatus(PostStatus.UNDER);
-        existingPost.setLabels(labels);
-
-        postController.updatePost(existingPost);
-        System.out.println("Пост обновлен.");
+        postDTO = postController.updatePost(postDTO);
+        System.out.println("Пост обновлен: " + postDTO);
     }
 
     private void deletePost() {
-        System.out.print("Введите ID поста для удаления: ");
+        System.out.print("Введите ID поста: ");
         int id = scanner.nextInt();
-        if (postController.getPostById(id) == null) {
-            System.out.println("Пост с таким ID не найден или не может быть удален.");
-        } else {
-            postController.deletePostById(id);
-            System.out.println("Пост удален.");
-        }
+        scanner.nextLine(); // consume newline
+        postController.deletePost(id);
+        System.out.println("Пост удален.");
     }
 
     private void addLabelToPost() {
         System.out.print("Введите ID поста: ");
         int postId = scanner.nextInt();
-        Post post = postController.getPostById(postId);
-        if (post == null) {
-            System.out.println("Пост с таким ID не найден.");
-            return;
-        }
-
+        scanner.nextLine(); // consume newline
         System.out.print("Введите ID метки: ");
         int labelId = scanner.nextInt();
-        Label label = labelController.getLabelById(labelId);
-        if (label == null) {
-            System.out.println("Метка с таким ID не найдена.");
-            return;
-        }
-
-        postController.addLabelToPost(postId, label);
+        scanner.nextLine(); // consume newline
+        postController.addLabelToPost(postId, labelId);
         System.out.println("Метка добавлена к посту.");
     }
+
 
     private void removeLabelFromPost() {
         System.out.print("Введите ID поста: ");
         int postId = scanner.nextInt();
-        Post post = postController.getPostById(postId);
-        if (post == null) {
-            System.out.println("Пост с таким ID не найден.");
-            return;
-        }
-
+        scanner.nextLine(); // consume newline
         System.out.print("Введите ID метки: ");
         int labelId = scanner.nextInt();
-        Label label = labelController.getLabelById(labelId);
-        if (label == null) {
-            System.out.println("Метка с таким ID не найдена.");
-            return;
-        }
-
+        scanner.nextLine(); // consume newline
         postController.removeLabelFromPost(postId, labelId);
         System.out.println("Метка удалена с поста.");
     }

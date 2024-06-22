@@ -1,63 +1,61 @@
 package samatov.jdbcProject.service;
 
 import lombok.RequiredArgsConstructor;
-import samatov.jdbcProject.enums.PostStatus;
-import samatov.jdbcProject.model.Label;
+import samatov.jdbcProject.dto.LabelDTO;
+import samatov.jdbcProject.dto.PostDTO;
+import samatov.jdbcProject.mapper.LabelMapper;
+import samatov.jdbcProject.mapper.PostMapper;
 import samatov.jdbcProject.model.Post;
-import samatov.jdbcProject.model.Writer;
 import samatov.jdbcProject.repository.PostRepository;
+import samatov.jdbcProject.repository.impl.PostRepositoryImpl;
 
-import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
 
-    public List<Post> getAllPost() {
-        return postRepository.findAll();
+    public List<PostDTO> getAllPosts() {
+        List<Post> posts = postRepository.findAll();
+        return posts.stream()
+                .map(PostMapper::toPostDTO)
+                .collect(Collectors.toList());
     }
 
-    public Post getPostById(Integer id) {
-        return postRepository.findById(id);
+    public PostDTO getPostById(Integer id) {
+        Post post = postRepository.findById(id);
+        return PostMapper.toPostDTO(post);
     }
 
-    public Post savePost(Post post, Integer writerId) {
-        post.setCreated(new Timestamp(System.currentTimeMillis()));
-        post.setUpdated(new Timestamp(System.currentTimeMillis()));
-        post.setStatus(PostStatus.ACTIVE);
-        post.setWriter(new Writer(writerId, null, null, null));
-        Post savedPost = postRepository.save(post);
-        savePostLabels(savedPost);
-        return savedPost;
+    public PostDTO createPost(PostDTO postDTO) {
+        Post post = PostMapper.toPostEntity(postDTO);
+        post = postRepository.save(post);
+        return PostMapper.toPostDTO(post);
     }
 
-    public Post updatePost(Post post) {
-        post.setUpdated(new Timestamp(System.currentTimeMillis()));
-        post.setStatus(PostStatus.UNDER);
-        Post updatedPost = postRepository.update(post);
-        savePostLabels(updatedPost);
-        return updatedPost;
+    public PostDTO updatePost(PostDTO postDTO) {
+        Post post = PostMapper.toPostEntity(postDTO);
+        post = postRepository.update(post);
+        return PostMapper.toPostDTO(post);
     }
 
-    public void deletePostById(Integer id) {
+    public void deletePost(Integer id) {
         postRepository.removeById(id);
     }
 
-    public void addLabelToPost(Integer postId, Label label) {
-        postRepository.addLabelToPost(postId, label);
+    public void addLabelToPost(Integer postId, LabelDTO labelDTO) {
+        Post post = postRepository.findById(postId);
+        if (post != null) {
+            post.getLabels().add(LabelMapper.toLabelEntity(labelDTO));
+            postRepository.update(post);
+        } else {
+            throw new RuntimeException("Пост с ID " + postId + " не найден.");
+        }
     }
 
     public void removeLabelFromPost(Integer postId, Integer labelId) {
         postRepository.removeLabelFromPost(postId, labelId);
-    }
-
-    private void savePostLabels(Post post) {
-        if (post.getLabels() != null) {
-            for (Label label : post.getLabels()) {
-                postRepository.addLabelToPost(post.getId(), label);
-            }
-        }
     }
 }

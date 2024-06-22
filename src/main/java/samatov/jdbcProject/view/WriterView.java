@@ -2,6 +2,9 @@ package samatov.jdbcProject.view;
 
 import samatov.jdbcProject.controller.WriterController;
 import samatov.jdbcProject.controller.LabelController;
+import samatov.jdbcProject.dto.LabelDTO;
+import samatov.jdbcProject.dto.PostDTO;
+import samatov.jdbcProject.dto.WriterDTO;
 import samatov.jdbcProject.model.Writer;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.model.Label;
@@ -67,7 +70,7 @@ public class WriterView {
     }
 
     private void displayAllWriter() {
-        List<Writer> writers = writerController.getAllWriter();
+        List<WriterDTO> writers = writerController.getAllWriter();
         writers.forEach(writer -> {
             System.out.println("Писатель: " + writer);
             writer.getPosts().forEach(post -> System.out.println("  Пост: " + post));
@@ -77,7 +80,7 @@ public class WriterView {
     private void displayWriterById() {
         System.out.print("Введите ID писателя: ");
         int id = scanner.nextInt();
-        Writer writer = writerController.getWriterById(id);
+        WriterDTO writer = writerController.getWriterById(id);
         System.out.println("Писатель: " + writer);
         writer.getPosts().forEach(post -> System.out.println("  Пост: " + post));
     }
@@ -87,7 +90,7 @@ public class WriterView {
         String firstName = scanner.next();
         System.out.print("Введите фамилию писателя: ");
         String lastName = scanner.next();
-        Writer writer = Writer.builder().firstName(firstName).lastName(lastName).build();
+        WriterDTO writer = WriterDTO.builder().firstName(firstName).lastName(lastName).build();
         writerController.saveWriter(writer);
         System.out.println("Писатель добавлен.");
     }
@@ -99,7 +102,7 @@ public class WriterView {
         String firstName = scanner.next();
         System.out.print("Введите новую фамилию писателя: ");
         String lastName = scanner.next();
-        Writer writer = Writer.builder().id(id).firstName(firstName).lastName(lastName).build();
+        WriterDTO writer = WriterDTO.builder().id(id).firstName(firstName).lastName(lastName).build();
         writerController.updateWriter(writer);
         System.out.println("Писатель обновлен.");
     }
@@ -125,13 +128,13 @@ public class WriterView {
         System.out.print("Введите текст поста: ");
         String content = scanner.nextLine();
 
-        List<Label> labels = new ArrayList<>();
+        List<LabelDTO> labels = new ArrayList<>();
         System.out.print("Введите количество меток: ");
         int labelCount = scanner.nextInt();
         for (int i = 0; i < labelCount; i++) {
             System.out.print("Введите ID метки: ");
             int labelId = scanner.nextInt();
-            Label label = labelController.getLabelById(labelId);
+            LabelDTO label = labelController.getLabelById(labelId);
             if (label != null) {
                 labels.add(label);
             } else {
@@ -139,7 +142,7 @@ public class WriterView {
             }
         }
 
-        Post post = Post.builder()
+        PostDTO post = PostDTO.builder()
                 .content(content)
                 .created(new Timestamp(System.currentTimeMillis()))
                 .updated(new Timestamp(System.currentTimeMillis()))

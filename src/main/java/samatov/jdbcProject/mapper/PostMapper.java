@@ -1,47 +1,44 @@
 package samatov.jdbcProject.mapper;
 
+import samatov.jdbcProject.dto.LabelDTO;
+import samatov.jdbcProject.dto.PostDTO;
 import samatov.jdbcProject.enums.PostStatus;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PostMapper {
 
-    public static List<Post> mapPostsFromResultSet(ResultSet resultSet) throws SQLException {
-        List<Post> posts = new ArrayList<>();
-        Post lastPost = null;
+    public static PostDTO toPostDTO(Post post) {
+        List<LabelDTO> labelDtoList = post.getLabels() != null ? post.getLabels().stream()
+                .map(LabelMapper::toLabelDTO)
+                .collect(Collectors.toList()) : Collections.emptyList();
 
-        while (resultSet.next()) {
-            int currentPostId = resultSet.getInt("post_id");
-            if (lastPost == null || lastPost.getId() != currentPostId) {
-                lastPost = new Post();
-                lastPost.setId(currentPostId);
-                lastPost.setContent(resultSet.getString("content"));
-                lastPost.setCreated(resultSet.getTimestamp("created"));
-                lastPost.setUpdated(resultSet.getTimestamp("updated"));
-                lastPost.setStatus(PostStatus.valueOf(resultSet.getString("status")));
-                lastPost.setLabels(new ArrayList<>());
-
-                posts.add(lastPost);
-            }
-
-            int labelId = resultSet.getInt("label_id");
-            if (!resultSet.wasNull()) {
-                Label label = new Label();
-                label.setId(labelId);
-                label.setName(resultSet.getString("name"));
-                lastPost.getLabels().add(label);
-            }
-        }
-        return posts;
+        return PostDTO.builder()
+                .id(post.getId())
+                .content(post.getContent())
+                .created(post.getCreated())
+                .updated(post.getUpdated())
+                .status(post.getStatus())
+                .labels(labelDtoList)
+                .build();
     }
 
-    public static Post mapPostFromResultSet(ResultSet resultSet) throws SQLException {
-        List<Post> posts = mapPostsFromResultSet(resultSet);
-        return posts.isEmpty() ? null : posts.get(0);
+    public static Post toPostEntity(PostDTO postDTO) {
+        List<Label> labels = postDTO.getLabels() != null ? postDTO.getLabels().stream()
+                .map(LabelMapper::toLabelEntity)
+                .collect(Collectors.toList()) : Collections.emptyList();
+
+        return Post.builder()
+                .id(postDTO.getId())
+                .content(postDTO.getContent())
+                .created(postDTO.getCreated())
+                .updated(postDTO.getUpdated())
+                .status(postDTO.getStatus())
+                .labels(labels)
+                .build();
     }
 }

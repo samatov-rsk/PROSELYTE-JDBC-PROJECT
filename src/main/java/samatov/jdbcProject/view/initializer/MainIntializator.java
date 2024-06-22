@@ -17,11 +17,11 @@ public class MainIntializator {
         WriterRepositoryImpl writerRepository = new WriterRepositoryImpl();
         PostRepositoryImpl postRepository = new PostRepositoryImpl();
         LabelService labelService = new LabelService(labelRepository);
-        WriterService writerService = new WriterService(writerRepository,postRepository);
+        PostService postService = new PostService(postRepository);
+        WriterService writerService = new WriterService(postService, writerRepository, postRepository);
         WriterController writerController = new WriterController(writerService);
         LabelController labelController = new LabelController(labelService);
-        PostService postService = new PostService(postRepository);
-        PostController postController = new PostController(postService);
+        PostController postController = new PostController(postService,labelService);
 
 
         return new MainView(writerController, labelController, postController);

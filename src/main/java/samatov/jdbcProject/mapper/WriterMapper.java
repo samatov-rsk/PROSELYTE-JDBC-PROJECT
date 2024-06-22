@@ -1,56 +1,38 @@
 package samatov.jdbcProject.mapper;
 
-import samatov.jdbcProject.enums.PostStatus;
-import samatov.jdbcProject.model.Label;
-import samatov.jdbcProject.model.Writer;
+import samatov.jdbcProject.dto.PostDTO;
+import samatov.jdbcProject.dto.WriterDTO;
 import samatov.jdbcProject.model.Post;
+import samatov.jdbcProject.model.Writer;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WriterMapper {
 
-    public static List<Writer> mapWritersFromResultSet(ResultSet resultSet) throws SQLException {
-        List<Writer> writers = new ArrayList<>();
-        Writer lastWriter = null;
-        Post lastPost = null;
+    public static WriterDTO toWriterDTO(Writer writer) {
+        List<PostDTO> postDTOs = writer.getPosts().stream()
+                .map(PostMapper::toPostDTO)
+                .collect(Collectors.toList());
+        return WriterDTO.builder()
+                .id(writer.getId())
+                .firstName(writer.getFirstName())
+                .lastName(writer.getLastName())
+                .posts(postDTOs)
+                .build();
+    }
 
-        while (resultSet.next()) {
-            int currentWriterId = resultSet.getInt("writer_id");
-            if (lastWriter == null || lastWriter.getId() != currentWriterId) {
-                lastWriter = new Writer();
-                lastWriter.setId(currentWriterId);
-                lastWriter.setFirstName(resultSet.getString("firstName"));
-                lastWriter.setLastName(resultSet.getString("lastName"));
-                lastWriter.setPosts(new ArrayList<>());
-                writers.add(lastWriter);
-                lastPost = null;
-            }
-
-            int postId = resultSet.getInt("post_id");
-            if (!resultSet.wasNull()) {
-                if (lastPost == null || lastPost.getId() != postId) {
-                    lastPost = new Post();
-                    lastPost.setId(postId);
-                    lastPost.setContent(resultSet.getString("content"));
-                    lastPost.setCreated(resultSet.getTimestamp("created"));
-                    lastPost.setUpdated(resultSet.getTimestamp("updated"));
-                    lastPost.setStatus(PostStatus.valueOf(resultSet.getString("status")));
-                    lastPost.setLabels(new ArrayList<>());
-                    lastWriter.getPosts().add(lastPost);
-                }
-
-                int labelId = resultSet.getInt("label_id");
-                if (!resultSet.wasNull()) {
-                    Label label = new Label();
-                    label.setId(labelId);
-                    label.setName(resultSet.getString("name"));
-                    lastPost.getLabels().add(label);
-                }
-            }
-        }
-        return writers;
+    public static Writer toWriterEntity(WriterDTO writerDTO) {
+        return Writer.builder()
+                .id(writerDTO.getId())
+                .firstName(writerDTO.getFirstName())
+                .lastName(writerDTO.getLastName())
+                .posts(writerDTO.getPosts() != null
+                        ? writerDTO.getPosts().stream()
+                        .map(PostMapper::toPostEntity)
+                        .collect(Collectors.toList())
+                        : Collections.emptyList())
+                .build();
     }
 }

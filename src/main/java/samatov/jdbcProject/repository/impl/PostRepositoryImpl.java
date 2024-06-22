@@ -1,121 +1,140 @@
 package samatov.jdbcProject.repository.impl;
 
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import samatov.jdbcProject.exception.PostException;
-import samatov.jdbcProject.mapper.PostMapper;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.repository.PostRepository;
-import samatov.jdbcProject.utils.DbConfig;
+import samatov.jdbcProject.utils.HibernateUtil;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
-
-import static samatov.jdbcProject.constanst.PostConstanst.*;
 
 public class PostRepositoryImpl implements PostRepository {
 
     @Override
     public List<Post> findAll() {
-        List<Post> posts;
-        try (PreparedStatement statement = DbConfig.getPreparedStatement(GET_ALL_POST)) {
-            ResultSet resultSet = statement.executeQuery();
-            posts = PostMapper.mapPostsFromResultSet(resultSet);
-        } catch (SQLException e) {
-            throw new PostException("Ошибка запроса, посты не найдены...");
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            String hql = "SELECT DISTINCT p FROM Post p LEFT JOIN FETCH p.labels";
+            Query<Post> query = session.createQuery(hql, Post.class);
+            return query.list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PostException("Ошибка запроса, посты не найдены");
         }
-        return posts;
     }
 
     @Override
     public Post findById(Integer id) {
-        Post post = null;
-        try (PreparedStatement statement = DbConfig.getPreparedStatement(GET_BY_ID_POST)) {
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
-            post = PostMapper.mapPostFromResultSet(resultSet);
-        } catch (SQLException e) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            String hql = "SELECT p FROM Post p LEFT JOIN FETCH p.labels WHERE p.id = :id";
+            Query<Post> query = session.createQuery(hql, Post.class);
+            query.setParameter("id", id);
+            Post post = query.uniqueResult();
+            if (post == null) {
+                throw new PostException("Ошибка запроса, пост с указанным id:=" + id + " не найден...");
+            }
+            return post;
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new PostException("Ошибка запроса, пост с указанным id:=" + id + " не найден...");
         }
-        return post;
     }
-
 
     @Override
     public void removeById(Integer id) {
-        try (PreparedStatement statement = DbConfig.getPreparedStatement(DELETE_BY_ID_POST)) {
-            statement.setInt(1, id);
-            int affectedRows = statement.executeUpdate();
-            if (affectedRows == 0) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Post post = session.get(Post.class, id);
+            if (post == null) {
                 throw new PostException("Ошибка запроса, пост с указаным id:=" + id + " не найден...");
             }
-        } catch (SQLException e) {
+            session.delete(post);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
             throw new PostException("Ошибка запроса, пост с указаным id:=" + id + " не удален...");
         }
     }
 
     @Override
     public Post save(Post post) {
-        try (PreparedStatement statement = DbConfig.getPreparedStatementWithGeneratedKeys(INSERT_POST)) {
-            statement.setInt(1, post.getWriter().getId());
-            statement.setString(2, post.getContent());
-            statement.setTimestamp(3, post.getCreated());
-            statement.setTimestamp(4, post.getUpdated());
-            statement.setString(5, post.getStatus().name());
-            int countRows = statement.executeUpdate();
-            if (countRows == 0) {
-                throw new PostException("Ошибка запроса, пост не удалось сохранить...");
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.save(post);
+            transaction.commit();
+            return post;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
             }
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    post.setId(generatedKeys.getInt(1));
-                } else {
-                    throw new PostException("Ошибка запроса, пост не удалось сохранить, ID не найден");
-                }
-            }
-        } catch (SQLException e) {
+            e.printStackTrace();
             throw new PostException("Ошибка запроса, пост не удалось сохранить...");
         }
-        return post;
     }
 
     @Override
     public Post update(Post post) {
-        try (PreparedStatement statement = DbConfig.getPreparedStatement(UPDATE_POST)) {
-            statement.setString(1, post.getContent());
-            statement.setTimestamp(2, post.getCreated());
-            statement.setTimestamp(3, post.getUpdated());
-            statement.setString(4, post.getStatus().name());
-            statement.setInt(5, post.getId());
-            int affectedRows = statement.executeUpdate();
-            if (affectedRows == 0) {
-                throw new PostException("Ошибка запроса, пост с указаным id:=" + post.getId() + " не найден...");
-            }
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.update(post);
+            transaction.commit();
             return post;
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
             throw new PostException("Ошибка запроса, пост не удалось изменить...");
         }
     }
 
     @Override
     public void addLabelToPost(Integer postId, Label label) {
-        try (PreparedStatement statement = DbConfig.getPreparedStatement(ADD_LABEL_TO_POST)) {
-            statement.setInt(1, postId);
-            statement.setInt(2, label.getId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Post post = session.get(Post.class, postId);
+            if (post == null) {
+                throw new PostException("Ошибка запроса, пост с указанным id:=" + postId + " не найден...");
+            }
+            post.getLabels().add(label);
+            session.update(post);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
             throw new PostException("Ошибка добавления метки к посту...");
         }
     }
 
     @Override
     public void removeLabelFromPost(Integer postId, Integer labelId) {
-        try (PreparedStatement statement = DbConfig.getPreparedStatement(REMOVE_LABEL_FROM_POST)) {
-            statement.setInt(1, postId);
-            statement.setInt(2, labelId);
-            statement.executeUpdate();
-        } catch (SQLException e) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Post post = session.get(Post.class, postId);
+            if (post == null) {
+                throw new PostException("Ошибка запроса, пост с указанным id:=" + postId + " не найден...");
+            }
+            Label label = session.get(Label.class, labelId);
+            post.getLabels().remove(label);
+            session.update(post);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
             throw new PostException("Ошибка удаления метки с поста...");
         }
     }

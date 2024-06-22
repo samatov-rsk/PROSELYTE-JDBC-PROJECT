@@ -1,6 +1,7 @@
 package samatov.jdbcProject.view;
 
 import samatov.jdbcProject.controller.LabelController;
+import samatov.jdbcProject.dto.LabelDTO;
 import samatov.jdbcProject.model.Label;
 
 import java.util.List;
@@ -52,21 +53,21 @@ public class LabelView {
     }
 
     private void displayAllLabels() {
-        List<Label> labels = labelController.getAllLabels();
+        List<LabelDTO> labels = labelController.getAllLabels();
         labels.forEach(System.out::println);
     }
 
     private void displayLabelById() {
         System.out.print("Введите ID метки: ");
         int id = scanner.nextInt();
-        Label label = labelController.getLabelById(id);
+        LabelDTO label = labelController.getLabelById(id);
         System.out.println(label);
     }
 
     private void createLabel() {
         System.out.print("Введите имя метки: ");
         String name = scanner.next();
-        Label label = Label.builder().name(name).build();
+        LabelDTO label = LabelDTO.builder().name(name).build();
         labelController.saveLabel(label);
         System.out.println("Метка добавлена.");
     }
@@ -76,7 +77,7 @@ public class LabelView {
         int id = scanner.nextInt();
         System.out.print("Введите новое имя метки: ");
         String name = scanner.next();
-        Label label = new Label(id, name);
+        LabelDTO label = new LabelDTO(id, name);
         labelController.updateLabel(label);
         System.out.println("Метка обновлена.");
     }

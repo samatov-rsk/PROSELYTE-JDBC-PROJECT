@@ -1,6 +1,9 @@
 package samatov.jdbcProject.controller;
 
 import lombok.RequiredArgsConstructor;
+import samatov.jdbcProject.dto.LabelDTO;
+import samatov.jdbcProject.dto.PostDTO;
+import samatov.jdbcProject.dto.WriterDTO;
 import samatov.jdbcProject.model.Writer;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.model.Label;
@@ -13,19 +16,19 @@ public class WriterController {
 
     private final WriterService writerService;
 
-    public List<Writer> getAllWriter() {
+    public List<WriterDTO> getAllWriter() {
         return writerService.getAllWriter();
     }
 
-    public Writer getWriterById(Integer id) {
+    public WriterDTO getWriterById(Integer id) {
         return writerService.getWriterById(id);
     }
 
-    public Writer saveWriter(Writer writer) {
+    public WriterDTO saveWriter(WriterDTO writer) {
         return writerService.saveWriter(writer);
     }
 
-    public Writer updateWriter(Writer writer) {
+    public WriterDTO updateWriter(WriterDTO writer) {
         return writerService.updateWriter(writer);
     }
 
@@ -37,7 +40,7 @@ public class WriterController {
         writerService.removePostsByWriterId(writerId);
     }
 
-    public void addPostToWriter(Post post, List<Label> labels, Integer writerId) {
+    public void addPostToWriter(PostDTO post, List<LabelDTO> labels, Integer writerId) {
         writerService.addPostToWriter(post, labels, writerId);
     }
 
