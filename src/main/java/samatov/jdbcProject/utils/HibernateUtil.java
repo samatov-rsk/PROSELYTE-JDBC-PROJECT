@@ -26,8 +26,11 @@ public class HibernateUtil {
             configuration.setProperty("hibernate.connection.url", url);
             configuration.setProperty("hibernate.connection.username", user);
             configuration.setProperty("hibernate.connection.password", password);
-            configuration.setProperty("hibernate.hbm2ddl.auto", "none");
-            configuration.setProperty("hibernate.show_sql", "false");
+            configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+            configuration.setProperty("hibernate.show_sql", "true");
+            configuration.setProperty("hibernate.format_sql", "true");
+            configuration.setProperty("hibernate.use_sql_comments", "true");
+
 
             configuration.addAnnotatedClass(Label.class);
             configuration.addAnnotatedClass(Post.class);

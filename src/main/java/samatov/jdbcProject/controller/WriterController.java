@@ -10,6 +10,7 @@ import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.service.WriterService;
 
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class WriterController {
@@ -36,12 +37,13 @@ public class WriterController {
         writerService.deleteWriterById(id);
     }
 
+    public void addPostWithLabelsToWriter(PostDTO postDTO, Set<LabelDTO> labelDTOs, Integer writerId) {
+        writerService.addPostWithLabelsToWriter(postDTO, labelDTOs, writerId);
+    }
+
     public void removePostsByWriterId(Integer writerId) {
         writerService.removePostsByWriterId(writerId);
     }
 
-    public void addPostToWriter(PostDTO post, List<LabelDTO> labels, Integer writerId) {
-        writerService.addPostToWriter(post, labels, writerId);
-    }
-
 }
+

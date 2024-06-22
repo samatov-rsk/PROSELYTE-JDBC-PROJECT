@@ -8,14 +8,15 @@ import samatov.jdbcProject.model.Post;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PostMapper {
 
     public static PostDTO toPostDTO(Post post) {
-        List<LabelDTO> labelDtoList = post.getLabels() != null ? post.getLabels().stream()
+        Set<LabelDTO> labelDtoList = post.getLabels() != null ? post.getLabels().stream()
                 .map(LabelMapper::toLabelDTO)
-                .collect(Collectors.toList()) : Collections.emptyList();
+                .collect(Collectors.toSet()) : Collections.emptySet();
 
         return PostDTO.builder()
                 .id(post.getId())
@@ -28,9 +29,9 @@ public class PostMapper {
     }
 
     public static Post toPostEntity(PostDTO postDTO) {
-        List<Label> labels = postDTO.getLabels() != null ? postDTO.getLabels().stream()
+        Set<Label> labels = postDTO.getLabels() != null ? postDTO.getLabels().stream()
                 .map(LabelMapper::toLabelEntity)
-                .collect(Collectors.toList()) : Collections.emptyList();
+                .collect(Collectors.toSet()) : Collections.emptySet();
 
         return Post.builder()
                 .id(postDTO.getId())

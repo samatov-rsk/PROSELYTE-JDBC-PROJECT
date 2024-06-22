@@ -89,23 +89,11 @@ public class PostView {
                 .created(timestamp)
                 .updated(timestamp)
                 .status(PostStatus.ACTIVE) // начальный статус
-                .labels(Collections.emptyList()) // Инициализация пустым списком
+                .labels(Collections.emptySet()) // Инициализация пустым списком
                 .build();
 
         postDTO = postController.createPost(postDTO);
 
-        System.out.print("Введите количество меток для добавления: ");
-        int labelCount = scanner.nextInt();
-        scanner.nextLine(); // consume newline
-
-        for (int i = 0; i < labelCount; i++) {
-            System.out.print("Введите название метки: ");
-            String labelName = scanner.nextLine();
-            LabelDTO labelDTO = LabelDTO.builder()
-                    .name(labelName)
-                    .build();
-            postController.addLabelToPost(postDTO.getId(), labelDTO.getId());
-        }
         System.out.println("Пост добавлен: " + postDTO);
     }
 

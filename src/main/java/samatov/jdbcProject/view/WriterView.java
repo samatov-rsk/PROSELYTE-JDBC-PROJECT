@@ -5,15 +5,14 @@ import samatov.jdbcProject.controller.LabelController;
 import samatov.jdbcProject.dto.LabelDTO;
 import samatov.jdbcProject.dto.PostDTO;
 import samatov.jdbcProject.dto.WriterDTO;
+import samatov.jdbcProject.exception.NotFoundException;
 import samatov.jdbcProject.model.Writer;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.enums.PostStatus;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class WriterView {
     private final WriterController writerController;
@@ -128,12 +127,14 @@ public class WriterView {
         System.out.print("Введите текст поста: ");
         String content = scanner.nextLine();
 
-        List<LabelDTO> labels = new ArrayList<>();
+        Set<LabelDTO> labels = new HashSet<>();
         System.out.print("Введите количество меток: ");
         int labelCount = scanner.nextInt();
+        scanner.nextLine();
         for (int i = 0; i < labelCount; i++) {
             System.out.print("Введите ID метки: ");
             int labelId = scanner.nextInt();
+            scanner.nextLine();
             LabelDTO label = labelController.getLabelById(labelId);
             if (label != null) {
                 labels.add(label);
@@ -142,16 +143,23 @@ public class WriterView {
             }
         }
 
-        PostDTO post = PostDTO.builder()
+        PostDTO postDTO = PostDTO.builder()
                 .content(content)
                 .created(new Timestamp(System.currentTimeMillis()))
                 .updated(new Timestamp(System.currentTimeMillis()))
-                .status(PostStatus.ACTIVE)
-                .labels(labels)
+                .status(PostStatus.valueOf(PostStatus.ACTIVE.name()))
                 .build();
 
-        writerController.addPostToWriter(post, labels, writerId);
-        System.out.println("Пост добавлен к писателю.");
+        try {
+            writerController.addPostWithLabelsToWriter(postDTO, new HashSet<>(labels), writerId);
+            System.out.println("Пост успешно добавлен писателю.");
+        } catch (NotFoundException e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Произошла ошибка при добавлении поста.");
+        }
     }
+
 
 }

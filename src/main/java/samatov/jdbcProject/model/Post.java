@@ -6,6 +6,7 @@ import samatov.jdbcProject.enums.PostStatus;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -23,11 +24,15 @@ public class Post {
     @Enumerated(EnumType.STRING)
     private PostStatus status;
 
+    @ManyToOne
+    @JoinColumn(name = "writer_id")
+    private Writer writer;
+
     @ManyToMany
     @JoinTable(
             name = "post_labels",
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "label_id")
     )
-    private List<Label> labels;
+    private Set<Label> labels;
 }

@@ -35,7 +35,6 @@ public class PostController {
     }
 
     public void addLabelToPost(Integer postId, Integer labelId) {
-        // Поиск метки по ID
         LabelDTO labelDTO = labelService.getLabelById(labelId);
         if (labelDTO != null) {
             postService.addLabelToPost(postId, labelDTO);

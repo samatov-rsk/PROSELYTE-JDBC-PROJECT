@@ -6,6 +6,7 @@ import samatov.jdbcProject.enums.PostStatus;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -15,5 +16,5 @@ public class PostDTO {
     private Timestamp created;
     private Timestamp updated;
     private PostStatus status;
-    private List<LabelDTO> labels;
+    private Set<LabelDTO> labels;
 }
