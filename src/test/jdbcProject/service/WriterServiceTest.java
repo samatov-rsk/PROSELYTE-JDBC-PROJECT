@@ -1,4 +1,4 @@
-package samatov.jdbcProject.service;
+package jdbcProject.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,13 +11,11 @@ import samatov.jdbcProject.dto.LabelDTO;
 import samatov.jdbcProject.dto.PostDTO;
 import samatov.jdbcProject.dto.WriterDTO;
 import samatov.jdbcProject.exception.NotFoundException;
-import samatov.jdbcProject.mapper.LabelMapper;
-import samatov.jdbcProject.mapper.PostMapper;
-import samatov.jdbcProject.mapper.WriterMapper;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.model.Writer;
 import samatov.jdbcProject.repository.WriterRepository;
+import samatov.jdbcProject.service.WriterService;
 
 import java.sql.Timestamp;
 import java.util.Arrays;

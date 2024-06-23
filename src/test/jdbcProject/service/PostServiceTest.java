@@ -1,4 +1,4 @@
-package samatov.jdbcProject.service;
+package jdbcProject.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +15,7 @@ import samatov.jdbcProject.exception.PostException;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.repository.PostRepository;
+import samatov.jdbcProject.service.PostService;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
