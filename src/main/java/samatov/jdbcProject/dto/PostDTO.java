@@ -5,7 +5,6 @@ import lombok.Data;
 import samatov.jdbcProject.enums.PostStatus;
 
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Set;
 
 @Data

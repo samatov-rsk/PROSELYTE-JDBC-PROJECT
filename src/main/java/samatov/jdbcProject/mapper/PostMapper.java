@@ -2,12 +2,10 @@ package samatov.jdbcProject.mapper;
 
 import samatov.jdbcProject.dto.LabelDTO;
 import samatov.jdbcProject.dto.PostDTO;
-import samatov.jdbcProject.enums.PostStatus;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

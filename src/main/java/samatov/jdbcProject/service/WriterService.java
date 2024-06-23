@@ -12,7 +12,6 @@ import samatov.jdbcProject.mapper.WriterMapper;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.model.Writer;
-import samatov.jdbcProject.repository.PostRepository;
 import samatov.jdbcProject.repository.WriterRepository;
 
 import java.util.List;

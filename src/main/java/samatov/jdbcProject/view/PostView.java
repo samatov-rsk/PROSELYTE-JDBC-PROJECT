@@ -1,8 +1,6 @@
 package samatov.jdbcProject.view;
 
-import lombok.RequiredArgsConstructor;
 import samatov.jdbcProject.controller.PostController;
-import samatov.jdbcProject.dto.LabelDTO;
 import samatov.jdbcProject.dto.PostDTO;
 import samatov.jdbcProject.enums.PostStatus;
 

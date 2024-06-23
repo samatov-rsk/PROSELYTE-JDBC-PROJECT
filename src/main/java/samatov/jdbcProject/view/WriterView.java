@@ -1,18 +1,18 @@
 package samatov.jdbcProject.view;
 
-import samatov.jdbcProject.controller.WriterController;
 import samatov.jdbcProject.controller.LabelController;
+import samatov.jdbcProject.controller.WriterController;
 import samatov.jdbcProject.dto.LabelDTO;
 import samatov.jdbcProject.dto.PostDTO;
 import samatov.jdbcProject.dto.WriterDTO;
-import samatov.jdbcProject.exception.NotFoundException;
-import samatov.jdbcProject.model.Writer;
-import samatov.jdbcProject.model.Post;
-import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.enums.PostStatus;
+import samatov.jdbcProject.exception.NotFoundException;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 
 public class WriterView {
     private final WriterController writerController;

@@ -1,11 +1,13 @@
 package samatov.jdbcProject.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import samatov.jdbcProject.enums.PostStatus;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Set;
 
 @Entity

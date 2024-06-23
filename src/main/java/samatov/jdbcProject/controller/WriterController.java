@@ -4,9 +4,6 @@ import lombok.RequiredArgsConstructor;
 import samatov.jdbcProject.dto.LabelDTO;
 import samatov.jdbcProject.dto.PostDTO;
 import samatov.jdbcProject.dto.WriterDTO;
-import samatov.jdbcProject.model.Writer;
-import samatov.jdbcProject.model.Post;
-import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.service.WriterService;
 
 import java.util.List;

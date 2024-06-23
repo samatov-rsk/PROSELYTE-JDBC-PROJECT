@@ -20,7 +20,6 @@ public class PostRepositoryImpl implements PostRepository {
             Query<Post> query = session.createQuery(hql, Post.class);
             return query.list();
         } catch (Exception e) {
-            e.printStackTrace();
             throw new PostException("Ошибка запроса, посты не найдены");
         }
     }
@@ -37,7 +36,6 @@ public class PostRepositoryImpl implements PostRepository {
             }
             return post;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new PostException("Ошибка запроса, пост с указанным id:=" + id + " не найден...");
         }
     }
@@ -57,7 +55,6 @@ public class PostRepositoryImpl implements PostRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new PostException("Ошибка запроса, пост с указаным id:=" + id + " не удален...");
         }
     }
@@ -74,7 +71,6 @@ public class PostRepositoryImpl implements PostRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new PostException("Ошибка запроса, пост не удалось сохранить...");
         }
     }
@@ -91,7 +87,6 @@ public class PostRepositoryImpl implements PostRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new PostException("Ошибка запроса, пост не удалось изменить...");
         }
     }
@@ -112,7 +107,6 @@ public class PostRepositoryImpl implements PostRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new PostException("Ошибка добавления метки к посту...");
         }
     }
@@ -134,7 +128,6 @@ public class PostRepositoryImpl implements PostRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new PostException("Ошибка удаления метки с поста...");
         }
     }

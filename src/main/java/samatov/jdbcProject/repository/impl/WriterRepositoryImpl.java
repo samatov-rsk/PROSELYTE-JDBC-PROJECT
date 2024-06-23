@@ -22,7 +22,6 @@ public class WriterRepositoryImpl implements WriterRepository {
             Query<Writer> query = session.createQuery(hql, Writer.class);
             return query.list();
         } catch (Exception e) {
-            e.printStackTrace();
             throw new WriterException("Ошибка запроса, писатели не найдены");
         }
     }
@@ -39,7 +38,6 @@ public class WriterRepositoryImpl implements WriterRepository {
             }
             return writer;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new WriterException("Ошибка запроса, проблема с синтаксисом");
         }
     }
@@ -59,7 +57,6 @@ public class WriterRepositoryImpl implements WriterRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new WriterException("Ошибка запроса, писатель с указанным id:=" + id + " не удален");
         }
     }
@@ -76,7 +73,6 @@ public class WriterRepositoryImpl implements WriterRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new WriterException("Ошибка запроса, писателя не удалось сохранить");
         }
     }
@@ -93,7 +89,6 @@ public class WriterRepositoryImpl implements WriterRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new WriterException("Ошибка запроса, писателя не удалось изменить");
         }
     }
@@ -126,7 +121,6 @@ public class WriterRepositoryImpl implements WriterRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new WriterException("Ошибка при добавлении поста с метками к писателю");
         }
     }
@@ -145,7 +139,6 @@ public class WriterRepositoryImpl implements WriterRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            e.printStackTrace();
             throw new WriterException("Ошибка при удалении постов писателя");
         }
     }

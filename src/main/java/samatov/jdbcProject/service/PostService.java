@@ -8,7 +8,6 @@ import samatov.jdbcProject.mapper.LabelMapper;
 import samatov.jdbcProject.mapper.PostMapper;
 import samatov.jdbcProject.model.Post;
 import samatov.jdbcProject.repository.PostRepository;
-import samatov.jdbcProject.repository.impl.PostRepositoryImpl;
 
 import java.util.List;
 import java.util.stream.Collectors;
