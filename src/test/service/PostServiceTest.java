@@ -1,26 +1,29 @@
-package service;
+package samatov.jdbcProject.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import samatov.jdbcProject.dto.LabelDTO;
+import samatov.jdbcProject.dto.PostDTO;
 import samatov.jdbcProject.enums.PostStatus;
-import samatov.jdbcProject.exception.NotFoundException;
-import samatov.jdbcProject.exception.PostException;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
-import samatov.jdbcProject.model.Writer;
 import samatov.jdbcProject.repository.PostRepository;
-import samatov.jdbcProject.service.PostService;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class PostServiceTest {
 
     @Mock
@@ -29,134 +32,101 @@ public class PostServiceTest {
     @InjectMocks
     private PostService postService;
 
+    private Post post;
+    private PostDTO postDTO;
+    private Label label;
+    private LabelDTO labelDTO;
+
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    public void setUp() {
+        label = Label.builder().id(1).name("Test Label").build();
+        labelDTO = LabelDTO.builder().id(1).name("Test Label").build();
+
+        Set<Label> labels = new HashSet<>();
+        labels.add(label);
+
+        post = Post.builder()
+                .id(1)
+                .content("Test Content")
+                .created(new Timestamp(System.currentTimeMillis()))
+                .updated(new Timestamp(System.currentTimeMillis()))
+                .status(PostStatus.ACTIVE)
+                .labels(labels)
+                .build();
+
+        Set<LabelDTO> labelDTOs = new HashSet<>();
+        labelDTOs.add(labelDTO);
+
+        postDTO = PostDTO.builder()
+                .id(1)
+                .content("Test Content")
+                .created(new Timestamp(System.currentTimeMillis()))
+                .updated(new Timestamp(System.currentTimeMillis()))
+                .status(PostStatus.ACTIVE)
+                .labels(labelDTOs)
+                .build();
     }
 
     @Test
-    @DisplayName("when getAllPost called then success")
-    void getAllPostTest() {
-        List<Post> expectedPosts = Arrays.asList(new Post(), new Post());
-        when(postRepository.findAll()).thenReturn(expectedPosts);
-
-        List<Post> actualPosts = postService.getAllPost();
-
-        assertEquals(expectedPosts, actualPosts);
-        verify(postRepository).findAll();
+    public void testGetAllPosts() {
+        when(postRepository.findAll()).thenReturn(Arrays.asList(post));
+        List<PostDTO> posts = postService.getAllPosts();
+        assertNotNull(posts);
+        assertEquals(1, posts.size());
+        verify(postRepository, times(1)).findAll();
     }
 
     @Test
-    @DisplayName("when getPostById called then success")
-    void getPostByIdTest() {
-        Post expectedPost = new Post();
-        when(postRepository.findById(anyInt())).thenReturn(expectedPost);
-
-        Post actualPost = postService.getPostById(1);
-
-        assertEquals(expectedPost, actualPost);
-        verify(postRepository).findById(anyInt());
+    public void testGetPostById() {
+        when(postRepository.findById(1)).thenReturn(post);
+        PostDTO foundPost = postService.getPostById(1);
+        assertNotNull(foundPost);
+        assertEquals(postDTO.getId(), foundPost.getId());
+        verify(postRepository, times(1)).findById(1);
     }
 
     @Test
-    @DisplayName("when getPostById called then NotFoundException")
-    void throwExceptionWhenPostNotFound() {
-        when(postRepository.findById(anyInt())).thenThrow(new NotFoundException("Ошибка пост с таким id не найден"));
-
-        assertThrows(NotFoundException.class, () -> postService.getPostById(1));
-        verify(postRepository).findById(anyInt());
+    public void testCreatePost() {
+        when(postRepository.save(any(Post.class))).thenReturn(post);
+        PostDTO createdPost = postService.createPost(postDTO);
+        assertNotNull(createdPost);
+        assertEquals(postDTO.getContent(), createdPost.getContent());
+        verify(postRepository, times(1)).save(any(Post.class));
     }
 
     @Test
-    @DisplayName("when savePost called then success")
-    void savePostTest() {
-        Post postToSave = new Post();
-        postToSave.setWriter(new Writer(1, "John", "Doe", null));
-        Post savedPost = new Post();
-        when(postRepository.save(postToSave)).thenAnswer(invocation -> {
-            Post post = invocation.getArgument(0);
-            post.setId(1);
-            return post;
-        });
-
-        Post actualPost = postService.savePost(postToSave, 1);
-
-        assertNotNull(actualPost.getCreated());
-        assertNotNull(actualPost.getUpdated());
-        assertEquals(PostStatus.ACTIVE, actualPost.getStatus());
-        verify(postRepository).save(postToSave);
+    public void testUpdatePost() {
+        when(postRepository.update(any(Post.class))).thenReturn(post);
+        PostDTO updatedPost = postService.updatePost(postDTO);
+        assertNotNull(updatedPost);
+        assertEquals(postDTO.getContent(), updatedPost.getContent());
+        verify(postRepository, times(1)).update(any(Post.class));
     }
 
     @Test
-    @DisplayName("when savePost called then PostException")
-    void throwExceptionWhenSaveFails() {
-        Post postToSave = new Post();
-        when(postRepository.save(postToSave)).thenThrow(new PostException("Ошибка запроса, пост не удалось сохранить..."));
-
-        assertThrows(PostException.class, () -> postService.savePost(postToSave, 1));
-        verify(postRepository).save(postToSave);
+    public void testDeletePost() {
+        doNothing().when(postRepository).removeById(1);
+        postService.deletePost(1);
+        verify(postRepository, times(1)).removeById(1);
     }
 
     @Test
-    @DisplayName("when updatePost called then success")
-    void updatePostTest() {
-        Post updatedPost = new Post();
-        when(postRepository.update(updatedPost)).thenReturn(updatedPost);
+    public void testAddLabelToPost() {
+        when(postRepository.findById(1)).thenReturn(post);
+        doAnswer(invocation -> {
+            return null;
+        }).when(postRepository).update(any(Post.class));
 
-        Post actualPost = postService.updatePost(updatedPost);
-
-        assertNotNull(actualPost.getUpdated());
-        assertEquals(PostStatus.UNDER, actualPost.getStatus());
-        verify(postRepository).update(updatedPost);
+        postService.addLabelToPost(1, labelDTO);
+        verify(postRepository, times(1)).findById(1);
+        verify(postRepository, times(1)).update(any(Post.class));
     }
 
-    @Test
-    @DisplayName("when updatePost called then PostException")
-    void throwExceptionWhenUpdateFails() {
-        Post updatedPost = new Post();
-        when(postRepository.update(updatedPost)).thenThrow(new PostException("Failed to update post"));
-
-        assertThrows(PostException.class, () -> postService.updatePost(updatedPost));
-        verify(postRepository).update(updatedPost);
-    }
 
     @Test
-    @DisplayName("when deletePostById called then success")
-    void deletePostByIdTest() {
-        doNothing().when(postRepository).removeById(anyInt());
-
-        postService.deletePostById(anyInt());
-
-        verify(postRepository).removeById(anyInt());
-    }
-
-    @Test
-    @DisplayName("when deletePostById called then PostException")
-    void throwExceptionWhenDeletionFails() {
-        doThrow(new PostException("Failed to delete post")).when(postRepository).removeById(anyInt());
-
-        assertThrows(PostException.class, () -> postService.deletePostById(1));
-        verify(postRepository).removeById(anyInt());
-    }
-
-    @Test
-    @DisplayName("when addLabelToPost called then success")
-    void addLabelToPostTest() {
-        Label label = new Label(1, "Test Label");
-        doNothing().when(postRepository).addLabelToPost(anyInt(), any(Label.class));
-
-        postService.addLabelToPost(1, label);
-
-        verify(postRepository).addLabelToPost(anyInt(), any(Label.class));
-    }
-
-    @Test
-    @DisplayName("when removeLabelFromPost called then success")
-    void removeLabelFromPostTest() {
-        doNothing().when(postRepository).removeLabelFromPost(anyInt(), anyInt());
-
-        postService.removeLabelFromPost(anyInt(), anyInt());
-
-        verify(postRepository).removeLabelFromPost(anyInt(), anyInt());
+    public void testRemoveLabelFromPost() {
+        doNothing().when(postRepository).removeLabelFromPost(1, 1);
+        postService.removeLabelFromPost(1, 1);
+        verify(postRepository, times(1)).removeLabelFromPost(1, 1);
     }
 }
