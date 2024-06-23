@@ -3,6 +3,7 @@ package samatov.jdbcProject.repository.impl;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import samatov.jdbcProject.exception.NotFoundException;
 import samatov.jdbcProject.exception.PostException;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
@@ -32,7 +33,7 @@ public class PostRepositoryImpl implements PostRepository {
             query.setParameter("id", id);
             Post post = query.uniqueResult();
             if (post == null) {
-                throw new PostException("Ошибка запроса, пост с указанным id:=" + id + " не найден...");
+                throw new NotFoundException("Ошибка запроса, пост с указанным id:=" + id + " не найден...");
             }
             return post;
         } catch (Exception e) {
@@ -47,7 +48,7 @@ public class PostRepositoryImpl implements PostRepository {
             transaction = session.beginTransaction();
             Post post = session.get(Post.class, id);
             if (post == null) {
-                throw new PostException("Ошибка запроса, пост с указаным id:=" + id + " не найден...");
+                throw new NotFoundException("Ошибка запроса, пост с указаным id:=" + id + " не найден...");
             }
             session.delete(post);
             transaction.commit();
@@ -98,7 +99,7 @@ public class PostRepositoryImpl implements PostRepository {
             transaction = session.beginTransaction();
             Post post = session.get(Post.class, postId);
             if (post == null) {
-                throw new PostException("Ошибка запроса, пост с указанным id:=" + postId + " не найден...");
+                throw new NotFoundException("Ошибка запроса, пост с указанным id:=" + postId + " не найден...");
             }
             post.getLabels().add(label);
             session.update(post);
@@ -118,7 +119,7 @@ public class PostRepositoryImpl implements PostRepository {
             transaction = session.beginTransaction();
             Post post = session.get(Post.class, postId);
             if (post == null) {
-                throw new PostException("Ошибка запроса, пост с указанным id:=" + postId + " не найден...");
+                throw new NotFoundException("Ошибка запроса, пост с указанным id:=" + postId + " не найден...");
             }
             Label label = session.get(Label.class, labelId);
             post.getLabels().remove(label);

@@ -3,6 +3,7 @@ package samatov.jdbcProject.repository.impl;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import samatov.jdbcProject.exception.NotFoundException;
 import samatov.jdbcProject.exception.WriterException;
 import samatov.jdbcProject.model.Label;
 import samatov.jdbcProject.model.Post;
@@ -34,7 +35,7 @@ public class WriterRepositoryImpl implements WriterRepository {
             query.setParameter("id", id);
             Writer writer = query.uniqueResult();
             if (writer == null) {
-                throw new WriterException("Писатель с указанным id не найден");
+                throw new NotFoundException("Писатель с указанным id не найден");
             }
             return writer;
         } catch (Exception e) {
@@ -49,7 +50,7 @@ public class WriterRepositoryImpl implements WriterRepository {
             transaction = session.beginTransaction();
             Writer writer = session.get(Writer.class, id);
             if (writer == null) {
-                throw new WriterException("Ошибка запроса, писатель с указанным id:=" + id + " не найден");
+                throw new NotFoundException("Ошибка запроса, писатель с указанным id:=" + id + " не найден");
             }
             session.delete(writer);
             transaction.commit();
@@ -100,7 +101,7 @@ public class WriterRepositoryImpl implements WriterRepository {
 
             Writer writer = session.get(Writer.class, writerId);
             if (writer == null) {
-                throw new WriterException("Писатель с указанным id:=" + writerId + " не найден");
+                throw new NotFoundException("Писатель с указанным id:=" + writerId + " не найден");
             }
 
             post.setLabels(labels);

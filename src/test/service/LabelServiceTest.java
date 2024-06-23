@@ -56,7 +56,7 @@ public class LabelServiceTest {
 
     @Test
     @DisplayName("Получение ошибки LabelException при вызове getAllLabels")
-    public void testGetAllLabels_Negative() {
+    public void testGetAllLabels_LabelException() {
         when(labelRepository.findAll()).thenThrow(new LabelException("Ошибка запроса, метки не найдены..."));
 
         LabelException exception = assertThrows(LabelException.class, () -> {

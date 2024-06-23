@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import samatov.jdbcProject.dto.LabelDTO;
 import samatov.jdbcProject.dto.PostDTO;
+import samatov.jdbcProject.exception.PostException;
 import samatov.jdbcProject.mapper.LabelMapper;
 import samatov.jdbcProject.mapper.PostMapper;
 import samatov.jdbcProject.model.Post;
@@ -62,7 +63,7 @@ public class PostService {
             post.getLabels().add(LabelMapper.toLabelEntity(labelDTO));
             postRepository.update(post);
         } else {
-            throw new RuntimeException("Пост с ID " + postId + " не найден.");
+            throw new PostException("Пост с ID " + postId + " не найден.");
         }
         log.info("Добавлена к посту {} новая метка: {}", postId, labelDTO);
     }
